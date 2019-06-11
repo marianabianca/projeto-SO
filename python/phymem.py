@@ -12,7 +12,7 @@ class PhysicalMemory(object):
   """How many bits to use for the Aging algorithm"""
 
   def __init__(self, algorithm):
-    assert algorithm in {"fifo", "nru", "lru", "aging", "second-chance"}
+    assert algorithm in {"fifo", "nru", "lru", "aging", "second-chance", "belady"}
     self.algorithm = algorithm
 
   def put(self, frameId):
@@ -164,4 +164,22 @@ class SecondChance(PhysicalMemory):
 
   def access(self, frameId, isWrite):
     self.second_chance[frameId] = 0
+
+
+class Belady(PhysicalMemory):
+  def __init__(self, log_future):
+    super(Belady, self).__init__("belady")
+    log_future = log_future
+
+  def put(self, frameId):
+    pass
+
+  def evict(self):
+    pass
+
+  def clock(self):
+    pass
+
+  def access(self, frameId, isWrite):
+    pass
 

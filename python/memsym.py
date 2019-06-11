@@ -64,17 +64,28 @@ if __name__ == "__main__":
         "nru": NRU,
         "lru": LRU,
         "aging": Aging,
-        "second-chance": SecondChance
+        "second-chance": SecondChance,
+		"belady": Belady
     }
 
     # read workload from input file
     workload = []
+    log_future = {}
+    time = 0
     for line in sys.stdin.readlines():
+        try:
+            log_future[line].append(time)
+        except:
+            log_future[line] = [time]
+        time += 1
         page_id, mode = line.split()
         workload.append((int(page_id), mode == "w"))
 
     # setup simulation
-    phyMem = mapNameToClass[alg]()
+    if alg == "belady":
+        phyMem = mapNameToClass[alg](log_future)
+    else:
+        phyMem = mapNameToClass[alg]()
     vMem = VirtualMemory(num_pages, num_frames, phyMem)
 
     # fire
