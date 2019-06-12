@@ -169,17 +169,34 @@ class SecondChance(PhysicalMemory):
 class Belady(PhysicalMemory):
   def __init__(self, log_future):
     super(Belady, self).__init__("belady")
-    log_future = log_future
+    self.log_future = log_future
+    self.frames = []
 
   def put(self, frameId):
-    pass
+    self.frames.append(frameId)
 
   def evict(self):
-    pass
+    max = 0
+    frame_max = 0
 
+    for frame in self.frames:
+      times = self.log_future[frame]
+      if(len(times) == 0):
+        self.frames.remove(frame)
+        return frame
+      else:
+        max_aux = max(times)
+        if(max > max_aux):
+          max = max_aux
+          frame_max = frame
+    
+    self.frames.remove(frame)
+    self.log_future[frame_max].pop(0)
+    return frame_max
+    
   def clock(self):
     pass
 
   def access(self, frameId, isWrite):
-    pass
+    return 1
 
