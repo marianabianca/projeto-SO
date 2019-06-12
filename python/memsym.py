@@ -73,13 +73,15 @@ if __name__ == "__main__":
     log_future = {}
     time = 0
     for line in sys.stdin.readlines():
-        try:
-            log_future[line].append(time)
-        except:
-            log_future[line] = [time]
         time += 1
         page_id, mode = line.split()
-        workload.append((int(page_id), mode == "w"))
+        page_id = int(page_id)
+        try:
+            log_future[page_id].append(time)
+        except:
+            log_future[page_id] = [time]
+
+        workload.append((page_id, mode == "w"))
 
     # setup simulation
     if alg == "belady":

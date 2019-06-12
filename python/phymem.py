@@ -176,18 +176,20 @@ class Belady(PhysicalMemory):
     self.frames.append(frameId)
 
   def evict(self):
-    max = 0
+    maxi = 0
     frame_max = 0
 
     for frame in self.frames:
       times = self.log_future[frame]
-      if(len(times) == 0):
+      if (len(times) == 0):
         self.frames.remove(frame)
         return frame
+
       else:
         max_aux = max(times)
-        if(max > max_aux):
-          max = max_aux
+
+        if (maxi > max_aux):
+          maxi = max_aux
           frame_max = frame
     
     self.frames.remove(frame)
