@@ -3,6 +3,10 @@ nfaults,nframes,alg
 589500,32,aging
 671823,4,aging
 683802,8,aging
+450141,16,belady
+236256,32,belady
+715742,4,belady
+715713,8,belady
 138523,16,fifo
 98035,32,fifo
 302856,4,fifo

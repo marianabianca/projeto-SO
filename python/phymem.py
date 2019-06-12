@@ -174,6 +174,10 @@ class Belady(PhysicalMemory):
 
   def put(self, frameId):
     self.frames.append(frameId)
+    try:
+      self.log_future[frameId].pop(0)
+    except:
+      self.log_future[frameId] = []
 
   def evict(self):
     maxi = 0
@@ -186,13 +190,13 @@ class Belady(PhysicalMemory):
         return frame
 
       else:
-        max_aux = max(times)
+        max_aux = times[0]
 
-        if (maxi > max_aux):
+        if (max_aux > maxi):
           maxi = max_aux
           frame_max = frame
     
-    self.frames.remove(frame)
+    self.frames.remove(frame_max)
     self.log_future[frame_max].pop(0)
     return frame_max
     
@@ -200,5 +204,5 @@ class Belady(PhysicalMemory):
     pass
 
   def access(self, frameId, isWrite):
-    return 1
+    pass
 
