@@ -165,44 +165,84 @@ class SecondChance(PhysicalMemory):
   def access(self, frameId, isWrite):
     self.second_chance[frameId] = 0
 
+from Queue import deque
 
-class Belady(PhysicalMemory):
-  def __init__(self, log_future):
-    super(Belady, self).__init__("belady")
+class Belady:
+  def __init__(self, log_future, workload):
     self.log_future = log_future
-    self.frames = []
+    self.workload   = deque(workload)
+    self.frame2work = {}
+    self.work2Frame = {}
 
   def put(self, frameId):
-    self.frames.append(frameId)
-    try:
-      self.log_future[frameId].pop(0)
-    except:
-      self.log_future[frameId] = []
+    workId = self.workload[0][0]
+    self.work2Frame[workId] = frameId
+    self.frame2work[frameId] = workId
 
   def evict(self):
-    maxi = 0
-    frame_max = 0
+    bestFrame = 0
+    lastTime  = 0
 
-    for frame in self.frames:
-      times = self.log_future[frame]
-      if (len(times) == 0):
-        self.frames.remove(frame)
-        return frame
+    for frameId in self.frame2work:
+      workId = self.frame2work[frameId]
+      times  = self.log_future[workId]
 
-      else:
-        max_aux = times[0]
+      if len(times) == 0:
+        self.frame2work.pop(frameId)
+        return frameId
 
-        if (max_aux > maxi):
-          maxi = max_aux
-          frame_max = frame
-    
-    self.frames.remove(frame_max)
-    self.log_future[frame_max].pop(0)
-    return frame_max
-    
+      max_aux = times[0]
+      if max_aux > lastTime:
+        lastTime = max_aux
+        bestFrame = frameId
+
+    self.frame2work.pop(bestFrame)
+    return bestFrame
+
   def clock(self):
     pass
 
   def access(self, frameId, isWrite):
-    pass
+    workId = self.workload.popleft()[0]
+    self.log_future[workId].popleft()
+
+# class Belady(PhysicalMemory):
+#   def __init__(self, log_future):
+#     super(Belady, self).__init__("belady")
+#     self.log_future = log_future
+#     self.frames = []
+
+#   def put(self, frameId):
+#     self.frames.append(frameId)
+
+#   def evict(self):
+#     maxi = 0
+#     frame_max = 0
+
+#     for frame in self.frames:
+#       times = self.log_future[frame]
+#       if (len(times) == 0):
+#         self.frames.remove(frame)
+#         return frame
+
+#       else:
+#         max_aux = times[0]
+#         if (max_aux > maxi):
+#           maxi = max_aux
+#           frame_max = frame
+    
+#     self.frames.remove(frame_max)
+#     return frame_max
+
+    
+#   def clock(self):
+#     pass
+
+#   def access(self, frameId, isWrite):
+#     # if frameId in self.log_future:
+#     if len(self.log_future[frameId]) > 0:
+#       self.log_future[frameId].pop(0)
+#     # else:
+#       # self.log_future[frameId] = []
+    
 

@@ -69,6 +69,20 @@ if __name__ == "__main__":
     }
 
     # read workload from input file
+    # workload = []
+    # log_future = {}
+    # time = 0
+    # for line in sys.stdin.readlines():
+    #     time += 1
+    #     page_id, mode = line.split()
+    #     page_id = int(page_id)
+    #     try:
+    #         log_future[page_id].append(time)
+    #     except:
+    #         log_future[page_id] = [time]
+
+    #     workload.append((page_id, mode == "w"))
+
     workload = []
     log_future = {}
     time = 0
@@ -79,13 +93,14 @@ if __name__ == "__main__":
         try:
             log_future[page_id].append(time)
         except:
-            log_future[page_id] = [time]
+            log_future[page_id] = deque([time])
 
         workload.append((page_id, mode == "w"))
 
     # setup simulation
     if alg == "belady":
-        phyMem = mapNameToClass[alg](log_future)
+        # phyMem = mapNameToClass[alg](log_future)
+        phyMem = mapNameToClass[alg](log_future, workload)
     else:
         phyMem = mapNameToClass[alg]()
     vMem = VirtualMemory(num_pages, num_frames, phyMem)
