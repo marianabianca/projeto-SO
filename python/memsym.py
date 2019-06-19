@@ -33,8 +33,11 @@ class VirtualMemory:
                 self.phy_mem.put(new_frame_id)
                 self.phy_mem.access(new_frame_id, write_mode)
             else:
-                evicted_frame_id = self.phy_mem.evict()
-                assert type(evicted_frame_id) == int, "frameId returned by evict should be an int"
+                evicted_frame = self.phy_mem.evict()
+                # evicted_frame_id = evicted_frame
+                evicted_frame_id = evicted_frame[0]
+                io = evicted_frame[1]
+                # assert type(evicted_frame_id) == int, "frameId returned by evict should be an int"
                 page_id_out = self.frame2page.get(evicted_frame_id, None)
                 assert page_id_out is not None, "frameId returned by evict should be allocated"
 
@@ -48,8 +51,8 @@ class VirtualMemory:
                 #update frame2page
                 self.frame2page[evicted_frame_id] = page_id
                 self.phy_mem.access(evicted_frame_id, write_mode)
-                return 1
-        return 0
+                return (1, io)
+        return (0, 0)
 
 if __name__ == "__main__":
 
@@ -108,15 +111,20 @@ if __name__ == "__main__":
     # fire
     count = 0
     fault_counter = 0
+    io = 0
     for load in workload:
         # call we fired clock (say, clock equals to 100) times, we tell the physical_mem to react to a clock event
         if count % clock == 0:
             phyMem.clock()
         count += 1
         page_id, acc_mode = load
-        fault_counter += vMem.access(page_id, acc_mode)
+        # accessed = vMem.access(page_id, acc_mode)
+        # fault_counter += accessed
+        accessed = vMem.access(page_id, acc_mode)
+        fault_counter += accessed[0]
+        io += accessed[1]
 
     #TODO
     # collect results
     # write output
-    print fault_counter, " ".join(sys.argv[1:])
+    print fault_counter, " ".join(sys.argv[1:]), io

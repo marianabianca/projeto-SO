@@ -42,18 +42,22 @@ class FIFO(PhysicalMemory):
     super(FIFO, self).__init__("fifo")
 
     self.queue = Queue()
+    self.pages = {}
   
   def put(self, frameId):
     self.queue.put(frameId)
 
   def evict(self):
-    return self.queue.get()
+    frameId = self.queue.get()
+    io = self.pages.pop(frameId)
+    return (frameId, io)
 
   def clock(self):
     pass
 
   def access(self, frameId, isWrite):
-    pass
+    self.pages[frameId] = isWrite
+    # pass
 
 # Niveis de prioridade
 # 3. referenced, modified
@@ -65,20 +69,24 @@ class NRU(PhysicalMemory):
   def __init__(self):
     super(NRU, self).__init__("nru")
     self.frames = []
+    self.pages = {}
   
   #(frameID, referenced, modified, Nivel prioridade)
   def put(self, frameId):
     self.frames.append((frameId, False, False, 0))
 
   def evict(self):
-    aux = min(self.frames, key=lambda x: x[3])
-    self.frames.remove(aux)
-    return aux[0]
+    page = min(self.frames, key=lambda x: x[3])
+    self.frames.remove(page)
+    frameId = page[0]
+    io = self.pages.pop(frameId)
+    return (frameId, io)
 
   def clock(self):
     pass
 
   def access(self, frameId, isWrite):
+    self.pages[frameId] = isWrite
     prioridade = -1
     index = 0
     for i in range(len(self.frames)):
@@ -99,17 +107,21 @@ class LRU(PhysicalMemory):
   def __init__(self):
     super(LRU, self).__init__("lru")
     self.lista = []
+    self.pages = {}
   
   def put(self, frameId):
     self.lista.append(frameId)
 
   def evict(self):
-    return self.lista.pop(0)
+    frameId = self.lista.pop(0)
+    io = self.pages.pop(frameId)
+    return (frameId, io)
 
   def clock(self):
     pass
 
   def access(self, frameId, isWrite):
+    self.pages[frameId] = isWrite
     if frameId in self.lista:
       self.lista.remove(frameId)
     self.lista.append(frameId)
@@ -118,6 +130,7 @@ class Aging(PhysicalMemory):
   def __init__(self):
     super(Aging, self).__init__("aging")
     self.frames = {}
+    self.pages = {}
   
   def put(self, frameId):
     self.frames[frameId] = "1"
@@ -129,13 +142,15 @@ class Aging(PhysicalMemory):
         mn = frame
     
     self.frames.pop(mn)
-    return mn
+    io = self.pages.pop(mn)
+    return (mn, io)
 
   def clock(self):
     for frame in self.frames:
       self.frames[frame] = "0" + self.frames[frame]
 
   def access(self, frameId, isWrite):
+    self.pages[frameId] = isWrite
     self.frames[frameId] = "1" + self.frames[frameId]
 
 class SecondChance(PhysicalMemory):
@@ -144,6 +159,7 @@ class SecondChance(PhysicalMemory):
     super(SecondChance, self).__init__("second-chance")
     self.frames = Queue()
     self.second_chance = {}
+    self.pages = {}
 
   def put(self, frameId):
     self.frames.put(frameId)
@@ -154,15 +170,17 @@ class SecondChance(PhysicalMemory):
       frameId = self.frames.get()
       if(self.second_chance[frameId] == 0):
         self.frames.put(frameId)
-        self.second_chance[frameId] = 1          
+        self.second_chance[frameId] = 1
       else:
         self.second_chance.pop(frameId)
-        return frameId
+        io = self.pages.pop(frameId)
+        return (frameId, io)
 
   def clock(self):
     pass
 
   def access(self, frameId, isWrite):
+    self.pages[frameId] = isWrite
     self.second_chance[frameId] = 0
 
 from Queue import deque
@@ -173,6 +191,7 @@ class Belady:
     self.workload   = deque(workload)
     self.frame2work = {}
     self.work2Frame = {}
+    self.pages = {}
 
   def put(self, frameId):
     workId = self.workload[0][0]
@@ -189,7 +208,8 @@ class Belady:
 
       if len(times) == 0:
         self.frame2work.pop(frameId)
-        return frameId
+        io = self.pages.pop(bestFrame)
+        return (bestFrame, io)
 
       max_aux = times[0]
       if max_aux > lastTime:
@@ -197,52 +217,13 @@ class Belady:
         bestFrame = frameId
 
     self.frame2work.pop(bestFrame)
-    return bestFrame
+    io = self.pages.pop(bestFrame)
+    return (bestFrame, io)
 
   def clock(self):
     pass
 
   def access(self, frameId, isWrite):
+    self.pages[frameId] = isWrite
     workId = self.workload.popleft()[0]
     self.log_future[workId].popleft()
-
-# class Belady(PhysicalMemory):
-#   def __init__(self, log_future):
-#     super(Belady, self).__init__("belady")
-#     self.log_future = log_future
-#     self.frames = []
-
-#   def put(self, frameId):
-#     self.frames.append(frameId)
-
-#   def evict(self):
-#     maxi = 0
-#     frame_max = 0
-
-#     for frame in self.frames:
-#       times = self.log_future[frame]
-#       if (len(times) == 0):
-#         self.frames.remove(frame)
-#         return frame
-
-#       else:
-#         max_aux = times[0]
-#         if (max_aux > maxi):
-#           maxi = max_aux
-#           frame_max = frame
-    
-#     self.frames.remove(frame_max)
-#     return frame_max
-
-    
-#   def clock(self):
-#     pass
-
-#   def access(self, frameId, isWrite):
-#     # if frameId in self.log_future:
-#     if len(self.log_future[frameId]) > 0:
-#       self.log_future[frameId].pop(0)
-#     # else:
-#       # self.log_future[frameId] = []
-    
-
