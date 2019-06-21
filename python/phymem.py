@@ -103,6 +103,8 @@ class NRU(PhysicalMemory):
         break
     self.frames[index]= (frameId, True, isWrite, prioridade)
 
+# NRU melhor que fifo (?? esperado)
+
 class LRU(PhysicalMemory):
   def __init__(self):
     super(LRU, self).__init__("lru")
@@ -208,8 +210,8 @@ class Belady:
 
       if len(times) == 0:
         self.frame2work.pop(frameId)
-        io = self.pages.pop(bestFrame)
-        return (bestFrame, io)
+        io = self.pages.pop(frameId)
+        return (frameId, io)
 
       max_aux = times[0]
       if max_aux > lastTime:

@@ -9,3 +9,7 @@ summary(data)
 p <- ggplot(data, aes(x=nframes, y=nfaults, color=alg))
 p <- p + geom_line() + scale_y_continuous()
 ggsave(p, file=paste(args[1], "png", sep="."))
+
+p <- ggplot(data, aes(x=nframes, y=io, color=alg))
+p <- p + geom_line()
+ggsave(p, file=paste(args[1], "io", "png", sep="."))
