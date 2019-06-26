@@ -83,7 +83,9 @@ class NRU(PhysicalMemory):
     return (frameId, io)
 
   def clock(self):
-    pass
+    for page in self.frames:
+      self.pages[page[0]] = False
+
 
   def access(self, frameId, isWrite):
     self.pages[frameId] = isWrite
@@ -133,9 +135,10 @@ class Aging(PhysicalMemory):
     super(Aging, self).__init__("aging")
     self.frames = {}
     self.pages = {}
+    self.ALGORITHM_AGING_NBITS = 8
   
   def put(self, frameId):
-    self.frames[frameId] = "1"
+    self.frames[frameId] = "1" + (self.ALGORITHM_AGING_NBITS - 1) * "0"
 
   def evict(self):
     mn = ""
@@ -149,11 +152,11 @@ class Aging(PhysicalMemory):
 
   def clock(self):
     for frame in self.frames:
-      self.frames[frame] = "0" + self.frames[frame]
+      self.frames[frame] = "0" + self.frames[frame][1:]
 
   def access(self, frameId, isWrite):
     self.pages[frameId] = isWrite
-    self.frames[frameId] = "1" + self.frames[frameId]
+    self.frames[frameId] = "1" + self.frames[frameId][1:]
 
 class SecondChance(PhysicalMemory):
   def __init__(self):
