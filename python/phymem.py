@@ -83,6 +83,13 @@ class NRU(PhysicalMemory):
     return (frameId, io)
 
   def clock(self):
+    for i in range(len(self.frames)):
+      aux = self.frames[i]
+      if self.frames[i][2]:
+        prioridade = 1
+      else:
+        prioridade = 0
+      self.frames[i] = (aux[0], False, aux[2], prioridade)
     for page in self.frames:
       self.pages[page[0]] = False
 
@@ -105,7 +112,6 @@ class NRU(PhysicalMemory):
         break
     self.frames[index]= (frameId, True, isWrite, prioridade)
 
-# NRU melhor que fifo (?? esperado)
 
 class LRU(PhysicalMemory):
   def __init__(self):
