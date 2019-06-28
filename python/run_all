@@ -11,8 +11,11 @@ do
     do
         for nframes in 4 8 16 32
         do
-	    mkdir output/$trace
-	    python2.7 memsym.py $npages $nframes $alg $clock < load/$trace.in > output/$trace/$trace.$alg.$nframes.out
-	done
+            for tlbsizes in 4 8 16 32
+            do
+            mkdir output/$trace
+            python2.7 memsym.py $npages $nframes $alg $clock $tlbsizes < load/$trace.in > output/$trace/$trace.$alg.$nframes.$tlbsizes.out
+            done
+	    done
     done
 done
