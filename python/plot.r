@@ -1,10 +1,13 @@
 library("ggplot2")
 library("scales")
+library("dplyr")
 
 args = commandArgs(trailingOnly=TRUE)
 data = read.csv(args[1], header = TRUE)
 
 summary(data)
+
+data
 
 p <- ggplot(data, aes(x=nframes, y=nfaults, color=alg))
 p <- p + geom_line() + scale_y_continuous(labels = scales::comma)
