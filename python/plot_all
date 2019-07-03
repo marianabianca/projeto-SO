@@ -15,7 +15,7 @@ do
     echo $f
     allsamples="output/`basename $d`.mem.plot"
     # EDIT (Júlio) nfaults npages nframes alg clock tlb_size io tlb_count
-    echo "nfaults,nframes,alg,tbl_size,io,tlb_count" > $allsamples
+    echo "nfaults,nframes,alg,tlb_size,io,tlb_count" > $allsamples
     cat $d/*out | cut -d" " -f1,3,4,6,7,8 | sed 's/ /\,/g' >> $allsamples
     Rscript plot.r $allsamples
 done

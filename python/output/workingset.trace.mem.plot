@@ -1,4 +1,4 @@
-nfaults,nframes,alg,tbl_size,io,tlb_count
+nfaults,nframes,alg,tlb_size,io,tlb_count
 49982,16,aging,16,24969,950005
 49982,16,aging,32,24969,950010
 49982,16,aging,4,24969,787624

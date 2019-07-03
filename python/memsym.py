@@ -65,7 +65,7 @@ class VirtualMemory:
                 #update frame2page
                 self.frame2page[evicted_frame_id] = page_id
                 self.phy_mem.access(evicted_frame_id, write_mode)
-                return (1, io, in_tlb)
+                return (0 if in_tlb == 1 else 1, 0 if in_tlb == 1 else io, in_tlb)
         return (0, 0, in_tlb)
 
 if __name__ == "__main__":
