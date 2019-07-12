@@ -45,7 +45,9 @@ class FIFO(PhysicalMemory):
     self.pages = {}
   
   def put(self, frameId):
-    self.queue.put(frameId)
+    if not frameId in list(self.queue.queue):
+      self.queue.put(frameId)
+      self.pages[frameId] = False
 
   def evict(self):
     frameId = self.queue.get()

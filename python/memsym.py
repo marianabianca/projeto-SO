@@ -24,7 +24,9 @@ class VirtualMemory:
             self.page_table[i] = (-1, mapped, r, m)
 
     def _adjust_tlb(self, page_id):
-        if not (len(self.tlb) < self.tlb_size):
+        if (page_id in self.tlb):
+            self.tlb.remove(page_id)
+        elif not (len(self.tlb) < self.tlb_size):
             self.tlb.pop(0)
         self.tlb.append(page_id)
 
